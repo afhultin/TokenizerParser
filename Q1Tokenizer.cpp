@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <cctype> 
 using namespace std;
 
 ifstream infp;
@@ -15,14 +16,13 @@ const int SIZE = 100;
 Tokens nextToken;
 string lexeme;
 char nextChar;
-void addChar();
 int errors = 0;  // counter for error messages
 int line = 1;    // variable to keep track of the line number from the source code
 
 /******************************************************/
 /* Helping function to display the token as a string */
-void prt(Tokens t) {
-    switch (t) {
+void prt(Tokens nt) {
+    switch (nt) {
         case LETTER: cout << "<Letter>"; break;
         case DIGIT: cout << "<DIGIT>"; break;
         case INT_LIT: cout << "<INT_LIT>"; break;
@@ -31,7 +31,7 @@ void prt(Tokens t) {
         case ASSIGN_OP: cout << "<ASSIGN>"; break;
         case ADD_OP: cout << "<ADD_OP>"; break;
         case SUB_OP: cout << "<SUB_OP>"; break;
-        case EQUAL: cout << "<EQUAL>"; break;  // Ensure EQUAL is handled here
+        case EQUAL: cout << "<EQUAL>"; break;
         case MULT_OP: cout << "<MULT_OP>"; break;
         case DIV_OP: cout << "<DIV_OP>"; break;
         case LEFT_PAREN: cout << "<LEFT_PAREN>"; break;
@@ -40,10 +40,10 @@ void prt(Tokens t) {
         case PERIOD: cout << "<PERIOD>"; break;
         case INT_KEYWORD: cout << "<INT_KEYWORD>"; break;
         case FLOAT_KEYWORD: cout << "<FLOAT_KEYWORD>"; break;
-        case DECL: cout << "DECL"; break;
+        case DECL: cout << "<DECL>"; break;
         case ENDFILE: cout << "<ENDOFFILE>"; break;
-        case UNKNOWN: cout << "Unknown"; break;
-        default: cout << "<UNRECOGNIZED>"; break; // Handle any unhandled cases
+        case UNKNOWN: cout << "<Unknown>"; break;
+        default: cout << "<Unspecified token>"; break;
     }
 }
 
@@ -54,7 +54,6 @@ void errMsg(string msg) {
     errors++;
 }
 
-/*****************************************************/
 /*****************************************************/
 /* addChar - a function to add nextChar to lexeme */
 void addChar(char nextChar) {
@@ -69,6 +68,7 @@ char getChar() {
     char ch = infp.get();
     if (ch == '\n') {
         line++;
+        cout << "New Line line: " << line << endl;
     }
     return ch;
 }
@@ -97,7 +97,8 @@ Tokens lookupKeywords(string lexeme) {
     else if (lexeme == "/") token = DIV_OP;
     else if (lexeme == "=") token = EQUAL;
     else if (lexeme == ",") token = COMMA;
-    else if (lexeme == "int" || lexeme == "float") token = DECL;
+    else if (lexeme == "int") token = INT_KEYWORD; // Return INT_KEYWORD
+    else if (lexeme == "float") token = FLOAT_KEYWORD; // Return FLOAT_KEYWORD
     return token;
 }
 
@@ -116,32 +117,31 @@ Tokens tokenizer() {
         }
         nextToken = lookupKeywords(lexeme);
         if (nextToken == UNKNOWN) nextToken = IDENT;
-    } 
+    }
     else if (isdigit(nextChar)) {
         bool dotFound = false;
-        while (isdigit(nextChar)) {
+        while (isdigit(nextChar) || nextChar == '.') {
+            if (nextChar == '.') {
+                if (dotFound) break; // Prevent multiple dots in a float
+                dotFound = true;
+            }
             addChar(nextChar);
             nextChar = getChar();
-            if (nextChar == '.') {
-                dotFound = true;
-                addChar(nextChar);
-                nextChar = getChar();
-            }
         }
         if (dotFound) nextToken = FLOAT_LIT;
         else nextToken = INT_LIT;
-    } 
+    }
     else if (nextChar == EOF) {
         nextToken = ENDFILE;
         lexeme = "EOF";
-    } 
+    }
     else {  // operator
         lexeme = nextChar;
         nextToken = lookupKeywords(lexeme);
         nextChar = ' ';
     }
 
-    cout << "Token read:\t" << nextToken << " "; prt(nextToken);
+    cout << "Token read:\t"; prt(nextToken);
     cout << " Lexeme: " << lexeme << endl;
 
     return nextToken;
@@ -150,15 +150,17 @@ Tokens tokenizer() {
 /******************************************************/
 /* main driver */
 int main() {
-    infp.open("prg2.in");
+    infp.open("prg2.in"); // Ensure the file exists in the same directory
     if (!infp) {
         cout << "ERROR OPENING FILE" << endl;
         errors++;
-    } else {
-        nextChar = ' ';
+    }
+    else {
+        nextChar = getChar(); // Initialize nextChar to the first character from the file
         do {
             nextToken = tokenizer();
         } while (nextToken != ENDFILE);
     }
     cout << "Total number of errors: " << errors << endl;
+    return 0;
 }
