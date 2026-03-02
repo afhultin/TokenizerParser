@@ -1,25 +1,8 @@
 # Tokenizer & Parser
 
-A lexical analyzer and recursive-descent parser in C++ for a simple programming language supporting integer/float declarations and arithmetic expressions.
+Lexical analyzer and recursive-descent parser in C++ for a simple language with `int`/`float` declarations and arithmetic expressions.
 
-## Components
-
-### Tokenizer (`Q1Tokenizer.cpp`)
-Lexical analyzer that reads source files character by character and produces a stream of tokens:
-- **Identifiers** and **keywords** (`int`, `float`)
-- **Integer and float literals**
-- **Operators** (`+`, `-`, `*`, `/`, `=`)
-- **Delimiters** (`(`, `)`, `,`)
-
-### Parser (`Q1Parser.cpp`)
-Recursive-descent parser that processes the token stream and enforces grammar rules:
-- **Declarations** — `int x = 5, y = 10` and `float pi = 3.14`
-- **Assignment statements** — `x = y + 5 * (z - 2)`
-- **Arithmetic expressions** — with correct operator precedence (factor → term → expr)
-- **Symbol table** — tracks declared variables with types and values
-- **Error reporting** — reports syntax errors with line numbers
-
-## Grammar
+The tokenizer reads a source file character by character and spits out tokens (identifiers, literals, operators, keywords). The parser consumes those tokens and checks them against this grammar:
 
 ```
 <stmt>   → <decl> | <assign>
@@ -30,13 +13,17 @@ Recursive-descent parser that processes the token stream and enforces grammar ru
 <factor> → <ident> | <int_lit> | ( <expr> )
 ```
 
-## Usage
+It also maintains a symbol table and reports errors with line numbers.
+
+## Files
+
+- `Q1Tokenizer.cpp` - standalone tokenizer
+- `Q1Parser.cpp` - full parser (includes tokenizer + symbol table + error reporting)
+- `Q2Tokenizer.cpp` / `Q2Parser.cpp` - alternate versions
+- `prg.in`, `prg2.in` - sample input programs
+
+## Build & run
 
 ```bash
-g++ -o tokenizer Q1Tokenizer.cpp && ./tokenizer    # runs tokenizer on prg2.in
-g++ -o parser Q1Parser.cpp && ./parser              # runs full parser on prg2.in
+g++ -o parser Q1Parser.cpp && ./parser
 ```
-
-Input files (`prg.in`, `prg2.in`) contain sample programs in the supported language.
-
-Built for a Languages and Paradigms course.
