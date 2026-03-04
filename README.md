@@ -21,9 +21,3 @@ It also maintains a symbol table and reports errors with line numbers.
 - `Q1Parser.cpp` - full parser (includes tokenizer + symbol table + error reporting)
 - `Q2Tokenizer.cpp` / `Q2Parser.cpp` - alternate versions
 - `prg.in`, `prg2.in` - sample input programs
-
-## Build & run
-
-```bash
-g++ -o parser Q1Parser.cpp && ./parser
-```
